@@ -101,7 +101,7 @@ var Infinite = React.createClass({
 
     this.setState({
       loaded: true,
-      windowWidth: global.innerWidth,
+      windowWidth: global.innerWidth - this.props.nonDisplayWidth,
       windowHeight: global.innerHeight,
       elementWidth: this.props.elementWidth || this.refs.element1.getDOMNode().getClientRects()[0].width,
       elementHeight: this.props.elementHeight || this.refs.element1.getDOMNode().getClientRects()[0].height,
@@ -118,7 +118,7 @@ var Infinite = React.createClass({
   },
 
   onResize: function () {
-    this.setState({windowHeight: global.innerHeight, windowWidth: global.innerWidth});
+    this.setState({windowHeight: global.innerHeight, windowWidth: global.innerWidth - this.props.nonDisplayWidth});
   },
 
   componentWillUnmount: function () {
@@ -250,7 +250,7 @@ var Infinite = React.createClass({
       console.warn('the prop `direction` must be either "vertical" or "horizontal". It is set to', this.props.direction);
       return this.vertical();
     }
-    
+
   }
 
 });
