@@ -1,4 +1,9 @@
-'use strict';
+function topPosition(domElt) {
+  if (!domElt) {
+      return 0;
+    }
+  return domElt.offsetTop + topPosition(domElt.offsetParent);
+}
 
 var React = require('react/addons');
 var TransitionGroup = React.createFactory(React.addons.TransitionGroup);
@@ -36,7 +41,7 @@ xi) classname, elementClassName
 */
 
 
-var Infinite = React.createClass({
+var Infinite = React.addons.InfiniteScroll = React.createClass({
 
   displayName: 'React-Infinity',
 
@@ -55,7 +60,11 @@ var Infinite = React.createClass({
       margin: 0,
       scrollDelta: 0,
       direction: 'vertical',
-      preRender: false
+      preRender: false,
+      pageStart: 0,
+      hasMore: false,
+      loadMore: function () {},
+      threshold: 250
     };
   },
 
@@ -90,7 +99,8 @@ var Infinite = React.createClass({
 
   componentDidMount: function () {
 
-    global.addEventListener('resize', this.onResize);
+    this.pageLoaded = this.props.pageStart;
+    this.attachScrollListener();
 
     if(this.props.transitionable){
       RAFList.bind(this.onScroll);
@@ -109,6 +119,33 @@ var Infinite = React.createClass({
     });
   },
 
+  componentDidUpdate: function () {
+    this.attachScrollListener();
+  },
+
+  scrollListener: function () {
+    var el = this.getDOMNode();
+    var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+    if (topPosition(el) + el.offsetHeight - scrollTop - window.innerHeight < Number(this.props.threshold)) {
+      this.detachScrollListener();
+      this.props.loadMore(this.pageLoaded += 1);
+    }
+  },
+
+  attachScrollListener: function () {
+    if (!this.props.hasMore) {
+      return;
+    }
+    window.addEventListener('scroll', this.scrollListener);
+    window.addEventListener('resize', this.scrollListener);
+    this.scrollListener();
+  },
+
+  detachScrollListener: function () {
+    window.removeEventListener('scroll', this.scrollListener);
+    window.removeEventListener('resize', this.scrollListener);
+  },
+
   onScroll: function () {
     var scrollTop = this.props.transitionable ? this.props.transitionable.get() : global.scrollY;
 
@@ -117,12 +154,8 @@ var Infinite = React.createClass({
     }
   },
 
-  onResize: function () {
-    this.setState({windowHeight: global.innerHeight, windowWidth: global.innerWidth - this.props.nonDisplayWidth});
-  },
-
   componentWillUnmount: function () {
-    global.removeEventListener('resize', this.onResize);
+    this.detachScrollListener();
     if(this.props.transitionable){
       RAFList.unbind(this.onScroll);
     } else {
@@ -230,6 +263,17 @@ var Infinite = React.createClass({
     },
       TransitionGroup(null, elementsToRender)
     );
+  },
+
+  scrollListener: function () {
+    if(this.state.loaded){
+      var el = this.getDOMNode();
+      var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+      if (topPosition(el) + el.offsetHeight - scrollTop - window.innerHeight < Number(this.props.threshold)) {
+        this.detachScrollListener();
+        this.props.loadMore(this.pageLoaded += 1);
+      }
+    }
   },
 
   render: function(){
