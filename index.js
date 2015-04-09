@@ -102,6 +102,33 @@ var Infinite = React.addons.InfiniteScroll = React.createClass({
     this.pageLoaded = this.props.pageStart;
     this.attachScrollListener();
 
+    var number = 2;
+    var remainder = 0;
+    var elementTWidth = this.props.elementWidth
+    while(true){
+      remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+      if(remainder > 0){
+        number = number + 1;
+      } else {
+        number = number - 1;
+        if(number >= this.props.data.length){
+            number = this.props.data.length;
+            remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+            elementTWidth += Math.floor(remainder/number);
+            if(elementTWidth > this.props.elementWidth*1.5)
+              elementTWidth = Math.floor(this.props.elementWidth*1.5)
+        } else {
+          if(remainder > Math.floor(this.props.elementWidth/2)){
+            number = number + 1;
+            elementTWidth = Math.floor((this.props.displayWidth - this.props.margin*(number+1))/number);
+          } else {
+            elementTWidth += Math.floor(remainder/number);
+          }
+        }
+        break
+      }
+    }
+
     if(this.props.transitionable){
       RAFList.bind(this.onScroll);
     } else {
@@ -111,10 +138,10 @@ var Infinite = React.addons.InfiniteScroll = React.createClass({
 
     this.setState({
       loaded: true,
-      windowWidth: global.innerWidth - this.props.nonDisplayWidth,
+      windowWidth: this.props.displayWidth,
       windowHeight: global.innerHeight,
-      elementWidth: this.props.elementWidth || this.refs.element1.getDOMNode().getClientRects()[0].width,
-      elementHeight: this.props.elementHeight || this.refs.element1.getDOMNode().getClientRects()[0].height,
+      elementWidth: elementTWidth || this.refs.element1.getDOMNode().getClientRects()[0].width,
+      elementHeight: Math.floor((elementTWidth/16)*9) || this.refs.element1.getDOMNode().getClientRects()[0].height,
       scrollTop: global.scrollY || 0
     });
   },
@@ -167,8 +194,35 @@ var Infinite = React.addons.InfiniteScroll = React.createClass({
     var windowWidth = this.state.windowWidth;
     var windowHeight = this.state.windowHeight;
 
-    var elementWidth = this.props.mobileWidth <= windowWidth ? this.props.elementWidth : this.props.elementMobileWidth;
-    var elementHeight = this.props.mobileWidth <= windowWidth ? this.props.elementHeight : this.props.elementMobileHeight;
+    var number = 2;
+    var remainder = 0;
+    var elementTWidth = this.props.elementWidth
+    while(true){
+      remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+      if(remainder > 0){
+        number = number + 1;
+      } else {
+        number = number - 1;
+        if(number >= this.props.data.length){
+            number = this.props.data.length;
+            remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+            elementTWidth += Math.floor(remainder/number);
+            if(elementTWidth > this.props.elementWidth*1.5)
+              elementTWidth = Math.floor(this.props.elementWidth*1.5)
+        } else {
+          if(remainder > Math.floor(this.props.elementWidth/2)){
+            number = number + 1;
+            elementTWidth = Math.floor((this.props.displayWidth - this.props.margin*(number+1))/number);
+          } else {
+            elementTWidth += Math.floor(remainder/number);
+          }
+        }
+        break
+      }
+    }
+
+    var elementWidth = this.props.mobileWidth <= windowWidth ? elementTWidth : this.props.elementMobileWidth;
+    var elementHeight = this.props.mobileWidth <= windowWidth ? Math.floor((elementTWidth/16)*9) : this.props.elementMobileHeight;
     var margin = this.props.margin;
 
     if(!!this.props.justifyOnMobile && this.props.mobileWidth > windowWidth) {
@@ -218,8 +272,35 @@ var Infinite = React.addons.InfiniteScroll = React.createClass({
     var windowWidth = this.state.windowWidth;
     var windowHeight = this.state.windowHeight;
 
-    var elementWidth = this.props.mobileWidth <= windowWidth ? this.props.elementWidth : this.props.elementMobileWidth;
-    var elementHeight = this.props.mobileWidth <= windowWidth ? this.props.elementHeight : this.props.elementMobileHeight;
+    var number = 2;
+    var remainder = 0;
+    var elementTWidth = this.props.elementWidth
+    while(true){
+      remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+      if(remainder > 0){
+        number = number + 1;
+      } else {
+        number = number - 1;
+        if(number >= this.props.data.length){
+            number = this.props.data.length;
+            remainder = this.props.displayWidth - this.props.margin*(number+1) - this.props.elementWidth*number;
+            elementTWidth += Math.floor(remainder/number);
+            if(elementTWidth > this.props.elementWidth*1.5)
+              elementTWidth = Math.floor(this.props.elementWidth*1.5)
+        } else {
+          if(remainder > Math.floor(this.props.elementWidth/2)){
+            number = number + 1;
+            elementTWidth = Math.floor((this.props.displayWidth - this.props.margin*(number+1))/number);
+          } else {
+            elementTWidth += Math.floor(remainder/number);
+          }
+        }
+        break
+      }
+    }
+
+    var elementWidth = this.props.mobileWidth <= windowWidth ? elementTWidth : this.props.elementMobileWidth;
+    var elementHeight = this.props.mobileWidth <= windowWidth ? Math.floor((elementTWidth/16)*9) : this.props.elementMobileHeight;
     var margin = this.props.margin;
 
     if(!!this.props.justifyOnMobile && this.props.mobileWidth > windowWidth) {
